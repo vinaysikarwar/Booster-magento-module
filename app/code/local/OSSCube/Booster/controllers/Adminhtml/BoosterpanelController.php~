@@ -1,0 +1,246 @@
+<?php
+class OSSCube_Booster_Adminhtml_BoosterpanelController extends Mage_Adminhtml_Controller_Action
+{
+	public function indexAction()
+    {
+       $this->loadLayout();
+	   $this->_title($this->__("Magento Booster"));
+	   $this->renderLayout();
+    }
+	
+	public function boostAction()
+	{
+		$enable_compilation = $_POST['enable_compilation'];
+		$enable_cache = $_POST['enable_cache'];
+		$merge_css_js_files = $_POST['merge_css_js_files'];
+		$enable_full_page_cache = $_POST['enable_full_page_cache'];
+		$enable_log_cleaning = $_POST['enable_log_cleaning'];
+		$increase_memory_limit = $_POST['increase_memory_limit'];
+		$enable_flat_data = $_POST['enable_flat_data'];
+		$enable_htaccess = $_POST['enable_htaccess'];
+		if($enable_compilation)
+		{
+			$this->enableCompilation();
+		}
+		elseif(!$enable_compilation)
+		{
+			$this->disableCompilation();
+		}
+		if($enable_cache)
+		{
+			$this->enableCache();
+		}
+		elseif(!$enable_cache)
+		{
+			$this->disableCache();
+		}
+		if($merge_css_js_files)
+		{
+			$this->enableMerging();
+		}
+		elseif(!$merge_css_js_files)
+		{
+			$this->disableMerging();
+		}
+		
+		if($enable_log_cleaning)
+		{
+			$this->cleanLog();
+		}
+		elseif(!$enable_log_cleaning)
+		{
+			$this->disableLogcleanup();
+		}
+		
+		if($increase_memory_limit)
+		{
+			$this->increaseMemoryLimit();
+		}
+		
+		if($enable_flat_data)
+		{
+			$this->enableFlatData();
+		}
+		elseif(!$enable_flat_data)
+		{
+			$this->disableFlatData();
+		}
+		
+		if($enable_htaccess)
+		{
+			$this->enableHtaccess();
+		}
+		
+			$data = Mage::getModel('booster/booster');
+			$model = $data->load(1);
+			if($model)
+			{	
+				$data = $data->load(1);
+			}
+			$data->setEnableCompilation($enable_compilation);
+			$data->setEnableCache($enable_cache);
+			$data->setMergeCssJsFiles($merge_css_js_files);
+			$data->setEnableFullPageCache($enable_full_page_cache);
+			$data->setEnableLogCleaning($enable_log_cleaning);
+			$data->setIncreaseMemorylimit($increase_memory_limit);
+			$data->setEnableFlatData($enable_flat_data);
+			$data->setEnableHtaccess($enable_htaccess);
+			$data->save();
+		
+		$this->_redirect('*/*/');
+	}
+	
+	
+	
+	protected function _getCompiler()
+    {
+        if ($this->_compiler === null) {
+            $this->_compiler = Mage::getModel('compiler/process');
+        }
+        return $this->_compiler;
+    }
+	
+	public function enableCompilation()
+	{
+		//$this->_getCompiler()->clear();
+		$this->_getCompiler()->run();
+		Mage::getSingleton('adminhtml/session')->addSuccess
+		(
+            Mage::helper('compiler')->__('The compilation has been enabled.')
+        );
+		return;
+	}
+	
+	public function disableCompilation()
+	{
+		//$this->_getCompiler()->clear();
+		$this->_getCompiler()->registerIncludePath(false);
+		Mage::getSingleton('adminhtml/session')->addSuccess
+		(
+            Mage::helper('compiler')->__('The compilation has been disabled.')
+        );
+		return;
+	}
+	
+	public function enableCache()
+	{
+		$model = Mage::getModel('core/cache');
+		$options = $model->canUse();
+		foreach($options as $option=>$value) 
+		{
+			$options[$option] = 1;
+		}
+		$model->saveOptions($options);
+	}
+	
+	public function disableCache()
+	{
+		$model = Mage::getModel('core/cache');
+		$options = $model->canUse();
+		foreach($options as $option=>$value) 
+		{
+			$options[$option] = 0;
+		}
+		$model->saveOptions($options);
+	}
+	public function getConfig()
+	{
+		$config = new Mage_Core_Model_Config();
+		return $config;
+	}
+	
+	public function enableMerging()
+	{
+		$config = $this->getConfig();
+		$config ->saveConfig('dev/js/merge_files', "1", 'default', 0);
+		$config ->saveConfig('dev/css/merge_css_files', "1", 'default', 0);
+	}
+	
+	public function disableMerging()
+	{
+		$config = $this->getConfig();
+		$config ->saveConfig('dev/js/merge_files', "0", 'default', 0);
+		$config ->saveConfig('dev/css/merge_css_files', "0", 'default', 0);
+	}
+	
+	public function cleanLog()
+	{	
+		$config = $this->getConfig();
+		$config ->saveConfig('system/log/clean_after_day', "1", 'default', 0);
+		$config ->saveConfig('system/log/enabled', "1", 'default', 0);
+		$config ->saveConfig('system/log/frequency', "D", 'default', 0);
+		$log = Mage::getModel('log/log');
+		$log->clean();
+	}
+	
+	public function disableLogcleanup()
+	{
+		$config = $this->getConfig();
+		$config ->saveConfig('system/log/enabled', "0", 'default', 0);
+	}
+	
+	public function increaseMemoryLimit()
+	{
+		$fileLocation = getenv("DOCUMENT_ROOT") . "ecatalog/php.ini";
+		$file = fopen($fileLocation,"w");
+		$content = "extension=pdo.so\n extension=pdo_sqlite.so \n extension=sqlite.so \n extension=pdo_mysql.so \n memory_limit: 512M";
+		fwrite($file,$content);
+		fclose($file);
+	}
+	
+	public function enableFlatData()
+	{
+		$config = $this->getConfig();
+		$config ->saveConfig('catalog/frontend/flat_catalog_category', "1", 'default', 0);
+		$config ->saveConfig('catalog/frontend/flat_catalog_product', "1", 'default', 0);
+	}
+	
+	public function disableFlatData()
+	{
+		$config = $this->getConfig();
+		$config ->saveConfig('catalog/frontend/flat_catalog_category', "0", 'default', 0);
+		$config ->saveConfig('catalog/frontend/flat_catalog_product', "0", 'default', 0);
+	}
+	
+	public function enableHtaccess()
+	{
+		$myFile = getenv("DOCUMENT_ROOT") . "ecatalog/.htaccess";
+		$fh = fopen($myFile, 'a') or die("can't open file");
+		/* $string = "<IfModule mod_deflate.c>";
+		$string .= "\n ############################################";
+		$string .= "\n ## enable apache served files compression";
+		$string .= "\n ## http://developer.yahoo.com/performance/rules.html#gzip";
+		$string .= "\n # Insert filter on all content";
+		$string .= "\n SetOutputFilter DEFLATE";
+		$string .= "\n # Insert filter on selected content types only";
+		$string .= "\n AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript";
+		$string .= "\n # Netscape 4.x has some problems...";
+		$string .= "\n BrowserMatch ^Mozilla/4 gzip-only-text/html";
+		$string .= "\n # Netscape 4.06-4.08 have some more problems";
+		$string .= "\n BrowserMatch ^Mozilla/4\.0[678] no-gzip";
+		$string .= "\n # MSIE masquerades as Netscape, but it is fine";
+		$string .= "\n BrowserMatch \bMSIE !no-gzip !gzip-only-text/html";
+		$string .= "\n # Don't compress images";
+		$string .= "\n SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip dont-vary";
+		$string .= "\n # Make sure proxies don't deliver the wrong content";
+		$string .= "\n Header append Vary User-Agent env=!dont-vary";
+		$string .= "\n </IfModule>";
+		fwrite($fh, $string);
+		fclose($fh); */
+		$lines = file($myFile);
+		$word = 'word';
+		$result = '';
+		foreach($lines as $line) 
+		{
+			if(substr($line, 0) == '#SetOutputFilter DEFLATE')
+			{
+				$result .= 'SetOutputFilter DEFLATE'."\n";
+			}
+			else
+			{
+				$result .= $line;
+			}
+		}
+		file_put_contents($myFile, $result);
+	}
+}

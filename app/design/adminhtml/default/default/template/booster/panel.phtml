@@ -1,0 +1,157 @@
+<div class="content-header">
+    <table cellspacing="0" class="grid-header">
+        <tr>
+            <td><h3><?=$this->__('Magento Booster Panel')?></h3></td>
+            <td class="a-right">
+                <button onclick="boostForm.submit()" class="scalable save" type="button"><span>Save</span></button>
+            </td>
+        </tr>
+    </table>
+</div>
+<?php
+	$data = Mage::getModel('booster/booster')->load(1);
+	$enableCompilation = $data->getEnableCompilation();
+	$enable_cache = $data->getEnableCache();
+	$merge_css_js_files = $data->getMergeCssJsFiles();
+	$enable_full_page_cache = $data->getEnableFullPageCache();
+	$enable_log_cleaning = $data->getEnableLogCleaning();
+	$increase_memory_limit = $data->getIncreaseMemoryLimit();
+	$enable_flat_data = $data->getEnableFlatData();
+	$enable_htaccess = $data->getEnableHtaccess();
+	$cron_index_setting = $data->getCronIndexSetting();
+?>
+<div class="entry-edit">
+    <form id="boost_form" name="boost_form" method="post" action="<?php echo $this->getBoosterActionUrl(); ?>">
+        <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
+        <h4 class="icon-head head-edit-form fieldset-legend"><?=$this->__('Please Select the feature which you want to enable')?></h4>
+        <fieldset id="my-fieldset">
+            <table cellspacing="0" class="form-list">
+                <tr>
+                    <td class="label"><?php echo $this->__('Enable Compilation')?> </td>
+                    <td class="input-ele">
+						<select name="enable_compilation" id="comp" class="select" onChange="submitData('enableCompilation','comp')">
+							<option value="" ><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($enableCompilation) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$enableCompilation) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+                    <td class="label"><?php echo $this->__('Enable Cache')?> </td>
+                    <td class="input-ele">
+						<select name="enable_cache" class="select" >
+							<option value=""><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($enable_cache) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$enable_cache) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+                    <td class="label"><?php echo $this->__('Merge js and css files')?> </td>
+                    <td class="input-ele">
+						<select name="merge_css_js_files" class="select" >
+							<option value=""><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($merge_css_js_files) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$merge_css_js_files) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+                    <td class="label"><?php echo $this->__('Enable Full page Cache')?> </td>
+                    <td class="input-ele">
+						<select name="enable_full_page_cache" class="select" >
+							<option value=""><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($enable_full_page_cache) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$enable_full_page_cache) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+                    <td class="label"><?php echo $this->__('Clean Log Data')?> </td>
+                    <td class="input-ele">
+						<select name="enable_log_cleaning" class="select" >
+							<option value="" ><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($enable_log_cleaning) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$enable_log_cleaning) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+					<!--td id="page-help-link"><a href="#"><?php echo $this->__('By default magento stores logs, so the database size will increases day by day, by enabling this feature Your database logs will be cleaned. You can also setup log by going to system->log Cleaning')?> </a></td-->
+				</tr>	
+				
+				<tr>
+                    <td class="label"><?php echo $this->__('Increase memory limit')?> </td>
+                    <td class="input-ele">
+						<select name="increase_memory_limit" class="select" >
+							<option value=""><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($increase_memory_limit) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$increase_memory_limit) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+                    <td class="label"><?php echo $this->__('Enable Flat data for product and category')?> </td>
+                    <td class="input-ele">
+						<select name="enable_flat_data" class="select" >
+							<option value=""><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($enable_flat_data) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$enable_flat_data) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+					<!--td id="page-help-link"><a href="#"><?php echo $this->__('By enabling this feature your products and category data in frontend will come from a single table, currently it is fetch from multiple tables, so its load time is slow.')?></a> </td-->
+				</tr>
+				
+				<tr>
+                    <td class="label"><?php echo $this->__('Enable Htaccess Gzip, Mod_deflate, Performance Settings')?> </td>
+                    <td class="input-ele">
+						<select name="enable_htaccess" class="select" >
+							<option value=""><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($enable_htaccess) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$enable_htaccess) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+					<!--td id="page-help-link"><a href="#"><?php echo $this->__('This section will turn on the apache mod_deflate module, which compresses text, css, and javascript before it is sent to the browser. This results in a smaller download size.')?></a> </td-->
+				</tr>
+				
+				<tr>
+                    <td class="label"><?php echo $this->__('Enable Reindexing as a Cron Job')?> </td>
+                    <td class="input-ele">
+						<select name="cron_index_setting" class="select" >
+							<option value=""><?php echo $this->__('Select option')?></option>
+							<option value="1" <?php if($cron_index_setting) echo 'selected=selected'; ?>><?php echo $this->__('Yes')?></option>
+							<option value="0" <?php if(!$cron_index_setting) echo 'selected=selected'; ?>><?php echo $this->__('No')?></option>
+						</select>
+					</td>
+				</tr>
+            </table>
+        </fieldset>
+    </form>
+</div>
+<script type="text/javascript">
+    var boostForm = new varienForm('boost_form');
+</script>
+
+<script type="text/javascript">
+function submitData(func,id)
+{
+	var url = "<?php echo $this->getBaseUrl(); ?>booster/" + func + "";
+	var val = document.getElementById(id).value;
+       new Ajax.Request(url, {
+            method:'post'
+            , parameters: {
+                   setfunc: func,
+				   option: val
+                }
+            , requestHeaders: {Accept: 'application/json'},
+            onSuccess: function(transport) {
+                alert('success');
+             }
+          });
+}
+
+
+</script>
